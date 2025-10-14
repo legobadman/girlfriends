@@ -25,7 +25,7 @@ class FileGridAdapter(
         private val DIFF = object : DiffUtil.ItemCallback<FileItem>() {
             override fun areItemsTheSame(oldItem: FileItem, newItem: FileItem): Boolean {
                 // 用 path 作为唯一键
-                return oldItem.path == newItem.path
+                return oldItem.url == newItem.url
             }
 
             override fun areContentsTheSame(oldItem: FileItem, newItem: FileItem): Boolean {

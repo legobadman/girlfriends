@@ -1,18 +1,25 @@
 package com.example.girlfriends.ui.file
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.girlfriends.R
 import com.example.girlfriends.adapter.FileGridAdapter
+import com.example.girlfriends.data.RemoteFileRepository
 import com.example.girlfriends.ui.viewer.MediaViewerActivity
 import com.example.girlfriends.ui.viewer.model.MediaItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class FileBrowserFragment : Fragment() {
@@ -20,8 +27,8 @@ class FileBrowserFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var pathTextView: TextView
     private lateinit var adapter: FileGridAdapter
-    private val folderStack = ArrayDeque<File>()
-    private var currentFolder: File = File("/") // 起始路径
+    private var currentUrl: String = "http://192.168.1.10/media/"  // 初始模拟URL
+    private val folderStack = ArrayDeque<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,28 +41,27 @@ class FileBrowserFragment : Fragment() {
 
         // ✅ 改：不再传入初始 items，用 ListAdapter
         adapter = FileGridAdapter { item ->
-            val file = File(item.path ?: return@FileGridAdapter)
-            if (file.isDirectory) {
-                navigateToFolder(file)
+            if (item.isDirectory) {
+                loadFiles(item.url)
             } else if (item.extension?.lowercase() in listOf("jpg", "jpeg", "png", "gif", "bmp", "webp")) {
-                openImageViewer(file)
+                openImageViewer(item)
             }
         }
+
 
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
         recyclerView.adapter = adapter
 
-        loadFiles(currentFolder)
+        loadFiles(currentUrl)
 
         // 处理返回键
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (folderStack.isNotEmpty()) {
-                        currentFolder = folderStack.removeLast()
-                        loadFiles(currentFolder)
+                        currentUrl = folderStack.removeLast()
+                        loadFiles(currentUrl)
                     } else {
-                        // 根目录，不再处理，交给系统
                         isEnabled = false
                         requireActivity().onBackPressed()
                     }
@@ -73,35 +79,43 @@ class FileBrowserFragment : Fragment() {
         return FileItem(name, path, isDirectory, "modifiedData?", "size?", extension)
     }
 
-    private fun navigateToFolder(folder: File) {
-        folderStack.addLast(currentFolder)
-        currentFolder = folder
-        loadFiles(currentFolder)
+    private fun navigateToFolder(folder_url: String) {
+        folderStack.addLast(currentUrl)
+        currentUrl = folder_url
+        loadFiles(currentUrl)
     }
 
-    private fun loadFiles(folder: File) {
-        pathTextView.text = folder.absolutePath
-        val files = folder.listFiles()?.sortedWith(
-            compareBy<File> { !it.isDirectory }.thenBy { it.name.lowercase() }
-        ) ?: emptyList()
+    private fun loadFiles(folderUrl: String) {
+        pathTextView.text = folderUrl
 
-        // ✅ 改：映射为 FileItem 再 submitList
-        val fileItems = files.map(::toFileItem)
-        adapter.submitList(fileItems)
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val files = RemoteFileRepository.fetchDirectory(folderUrl)
+                withContext(Dispatchers.Main) {
+                    adapter.submitList(files)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "加载失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
-    private fun openImageViewer(selectedFile: File) {
-        val imageFiles = currentFolder.listFiles()?.filter {
-            it.isFile && it.extension.lowercase() in listOf("jpg", "jpeg", "png", "gif", "bmp", "webp")
-        } ?: return
 
-        // ✅ 改：MediaItem 使用 Uri
-        val mediaItems = imageFiles.map {
-            val uri = android.net.Uri.fromFile(it) // 如需更安全可改 FileProvider
-            com.example.girlfriends.ui.viewer.model.MediaItem(uri, com.example.girlfriends.ui.viewer.model.MediaType.IMAGE)
+    private fun openImageViewer(selectedItem: FileItem) {
+        val imageItems = adapter.currentList.filter {
+            !it.isDirectory && it.extension?.lowercase() in listOf("jpg", "jpeg", "png", "gif", "bmp", "webp")
         }
 
-        val selectedIndex = imageFiles.indexOfFirst { it.absolutePath == selectedFile.absolutePath }
+        val mediaItems = imageItems.map {
+            com.example.girlfriends.ui.viewer.model.MediaItem(
+                Uri.parse(it.url),
+                com.example.girlfriends.ui.viewer.model.MediaType.IMAGE
+            )
+        }
+
+        val selectedIndex = imageItems.indexOfFirst { it.url == selectedItem.url }
 
         com.example.girlfriends.ui.viewer.MediaViewerActivity.start(
             requireContext(),
@@ -109,4 +123,5 @@ class FileBrowserFragment : Fragment() {
             selectedIndex
         )
     }
+
 }

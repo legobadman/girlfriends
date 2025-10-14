@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="girlfriends">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-14T09:27:47.958581900Z">
+        <DropdownSelection timestamp="2025-10-14T11:43:21.164963800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\lego\.android\avd\Pixel_9.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=A8NLUT2526000881" />
             </handle>
           </Target>
         </DropdownSelection>
