@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.girlfriends.R
 import com.example.girlfriends.ui.viewer.model.MediaItem
+import android.widget.ImageView
+import coil.load
+
 
 class MediaViewerActivity : AppCompatActivity() {
 
@@ -25,13 +28,29 @@ class MediaViewerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // setContentView(R.layout.activity_media_viewer) // 你可以先不设布局，后续加入
 
-        // 读取参数（后续在这里初始化 ViewPager2、工具栏等）
+        // 创建一个全屏 ImageView（不用布局文件）
+        val imageView = ImageView(this).apply {
+            adjustViewBounds = true
+            scaleType = ImageView.ScaleType.FIT_CENTER
+        }
+        setContentView(imageView)
+
         val items: ArrayList<MediaItem>? =
             intent.getParcelableArrayListExtra(EXTRA_ITEMS)
         val index = intent.getIntExtra(EXTRA_INDEX, 0)
 
+        val item = items?.getOrNull(index)
+        if (item != null) {
+            imageView.load(item.uri) {
+                crossfade(true)
+                listener(
+                    onError = { _, _ ->
+                        imageView.setImageResource(android.R.drawable.ic_delete)
+                    }
+                )
+            }
+        }
         // TODO: 初始化 ViewPager2，定位到 index；点击切换工具栏显隐；图片/视频分别渲染
     }
 }

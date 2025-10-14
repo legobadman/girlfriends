@@ -6,6 +6,45 @@ import org.jsoup.Jsoup
 object RemoteFileRepository {
 
     fun fetchDirectory(url: String): List<FileItem> {
+        // 模拟局域网目录，但图片链接是真实互联网资源
+        return when (url) {
+            "http://192.168.1.10/media/" -> listOf(
+                FileItem(
+                    name = "Sample Images",
+                    url = "http://192.168.1.10/media/images/",
+                    isDirectory = true
+                )
+            )
+
+            "http://192.168.1.10/media/images/" -> listOf(
+                FileItem(
+                    name = "Mountains.jpg",
+                    url = "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1600",
+                    isDirectory = false,
+                    size = "2.3 MB",
+                    extension = "jpg"
+                ),
+                FileItem(
+                    name = "Beach.jpg",
+                    url = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600",
+                    isDirectory = false,
+                    size = "2.1 MB",
+                    extension = "jpg"
+                ),
+                FileItem(
+                    name = "City.jpg",
+                    url = "https://images.unsplash.com/photo-1493612276216-ee3925520721?w=1600",
+                    isDirectory = false,
+                    size = "2.0 MB",
+                    extension = "jpg"
+                )
+            )
+
+            else -> emptyList()
+        }
+    }
+
+    fun fetchDirectory3(url: String): List<FileItem> {
         // 模拟：根据URL返回不同的“假目录”
         return when (url) {
             "http://192.168.1.10/media/" -> listOf(
