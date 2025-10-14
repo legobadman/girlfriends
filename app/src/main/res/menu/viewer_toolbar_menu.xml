@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_favorite"
+        android:title="收藏"
+        android:icon="@android:drawable/btn_star" />
+    <item
+        android:id="@+id/action_tag"
+        android:title="打标签"
+        android:icon="@android:drawable/ic_menu_edit" />
+    <item
+        android:id="@+id/action_more"
+        android:title="更多"
+        android:icon="@android:drawable/ic_menu_more" />
+</menu>
