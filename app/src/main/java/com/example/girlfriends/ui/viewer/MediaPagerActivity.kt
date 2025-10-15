@@ -6,7 +6,7 @@ import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.girlfriends.R
-import com.example.girlfriends.ui.viewer.adapter.MediaPagerAdapter
+import com.example.girlfriends.ui.viewer.MediaPagerAdapter
 import com.example.girlfriends.ui.viewer.model.MediaItem
 
 class MediaPagerActivity : AppCompatActivity() {
@@ -26,7 +26,7 @@ class MediaPagerActivity : AppCompatActivity() {
             intent.getParcelableArrayListExtra<MediaItem>("media_list") ?: emptyList()
         val startIndex = intent.getIntExtra("start_index", 0)
 
-        adapter = MediaPagerAdapter(this, mediaList)
+        adapter = MediaPagerAdapter(mediaList)
         viewPager.adapter = adapter
         viewPager.setCurrentItem(startIndex, false)
 
