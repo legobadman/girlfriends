@@ -4,12 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.viewpager2.widget.ViewPager2
-import com.example.girlfriends.R
-import com.example.girlfriends.ui.viewer.model.MediaItem
-import android.widget.ImageView
 import coil.load
-
+import com.github.chrisbanes.photoview.PhotoView
+import com.example.girlfriends.ui.viewer.model.MediaItem
 
 class MediaViewerActivity : AppCompatActivity() {
 
@@ -17,10 +14,18 @@ class MediaViewerActivity : AppCompatActivity() {
         private const val EXTRA_ITEMS = "extra_media_items"
         private const val EXTRA_INDEX = "extra_selected_index"
 
+        /**
+         * 从 Fragment/Activity 调用：
+         * MediaViewerActivity.start(requireActivity(), items, index)
+         */
         fun start(context: Context, items: List<MediaItem>, selectedIndex: Int) {
             val intent = Intent(context, MediaViewerActivity::class.java).apply {
                 putParcelableArrayListExtra(EXTRA_ITEMS, ArrayList(items))
                 putExtra(EXTRA_INDEX, selectedIndex)
+            }
+            // 如果传入的不是 Activity context（比如 Application），需要加 FLAG_ACTIVITY_NEW_TASK
+            if (context !is android.app.Activity) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
         }
@@ -29,12 +34,12 @@ class MediaViewerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 创建一个全屏 ImageView（不用布局文件）
-        val imageView = ImageView(this).apply {
-            adjustViewBounds = true
-            scaleType = ImageView.ScaleType.FIT_CENTER
+        // 使用 PhotoView 支持双击/手势缩放
+        val photoView = PhotoView(this).apply {
+            minimumScale = 1.0f
+            maximumScale = 5.0f
         }
-        setContentView(imageView)
+        setContentView(photoView)
 
         val items: ArrayList<MediaItem>? =
             intent.getParcelableArrayListExtra(EXTRA_ITEMS)
@@ -42,15 +47,12 @@ class MediaViewerActivity : AppCompatActivity() {
 
         val item = items?.getOrNull(index)
         if (item != null) {
-            imageView.load(item.uri) {
+            photoView.load(item.uri) {
                 crossfade(true)
-                listener(
-                    onError = { _, _ ->
-                        imageView.setImageResource(android.R.drawable.ic_delete)
-                    }
-                )
+                listener(onError = { _, _ ->
+                    photoView.setImageResource(android.R.drawable.ic_delete)
+                })
             }
         }
-        // TODO: 初始化 ViewPager2，定位到 index；点击切换工具栏显隐；图片/视频分别渲染
     }
 }

@@ -52,6 +52,7 @@ dependencies {
 
     // 图片加载
     implementation("io.coil-kt:coil:2.7.0")
+    implementation("io.github.chrisbanes:PhotoView:2.3.0")
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("io.coil-kt:coil:2.6.0")
