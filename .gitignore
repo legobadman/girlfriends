@@ -56,3 +56,5 @@ google-services.json
 # Temporary files
 *.tmp
 *.swp
+/server/server_logic/.vs
+/server/server_logic/__pycache__
