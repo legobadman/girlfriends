@@ -2,7 +2,7 @@ package com.example.girlfriends.ui.file
 
 data class FileItem(
     val name: String,
-    val url: String,
+    val url: String,          // 拼接完整 HTTP 地址
     val isDirectory: Boolean,
     val modifiedDate: String? = null,
     val size: String? = null,

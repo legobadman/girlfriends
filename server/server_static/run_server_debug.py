@@ -4,9 +4,9 @@ import uvicorn
 
 if __name__ == "__main__":
     uvicorn.run(
-        "server:app",   # 妯″潡璺緞
+        "server:app",   # 模块路径
         host="192.168.1.3",
-        port=80,
-        reload=False,                # 濡傛灉瑕佽皟璇曪紝寤鸿鍏堝叧鎺塺eload
+        port=8080,
+        reload=False,                # 如果要调试，建议先关掉reload
         log_level="debug"
     )

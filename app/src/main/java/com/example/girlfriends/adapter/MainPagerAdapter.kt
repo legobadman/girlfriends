@@ -12,7 +12,18 @@ class MainPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activi
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> FileBrowserFragment()
+            0 -> {
+                val hostDir = "http://192.168.1.3:80"
+                val hostFile = "http://192.168.1.3:8080"
+                val rootKey = "韩国妹子"
+                FileBrowserFragment.newInstance(hostDir, hostFile, rootKey)
+            }
+            1 -> {
+                val hostDir = "http://192.168.1.3:80"
+                val hostFile = "http://192.168.1.3:8080"
+                val rootKey = "国产妹子"
+                FileBrowserFragment.newInstance(hostDir, hostFile, rootKey)
+            }
             else -> PostListFragment()
         }
     }
